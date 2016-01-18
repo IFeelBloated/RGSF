@@ -38,7 +38,7 @@ class OpRG01
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		const float        mi = std::min(std::min(
 			std::min(std::min(a1, a2), std::min(a3, a4)),
 			std::min(std::min(a5, a6), std::min(a7, a8))
@@ -56,7 +56,7 @@ class OpRG02
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		float                a[9] = { a1, a2, a3, a4, c, a5, a6, a7, a8 };
 
 		std::sort(&a[0], (&a[8]) + 1);
@@ -69,7 +69,7 @@ class OpRG03
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		float                a[9] = { a1, a2, a3, a4, c, a5, a6, a7, a8 };
 
 		std::sort(&a[0], (&a[8]) + 1);
@@ -82,7 +82,7 @@ class OpRG04
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		float                a[9] = { a1, a2, a3, a4, c, a5, a6, a7, a8 };
 
 		std::sort(&a[0], (&a[8]) + 1);
@@ -95,7 +95,7 @@ class OpRG05
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		const float mal1 = std::max(std::max(a1, a8), c);
 		const float mil1 = std::min(std::min(a1, a8), c);
 
@@ -135,7 +135,17 @@ class OpRG06
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+
 		const float mal1 = std::max(std::max(a1, a8), c);
 		const float mil1 = std::min(std::min(a1, a8), c);
 
@@ -158,10 +168,10 @@ public:
 		const float clipped3 = limit(cr, mil3, mal3);
 		const float clipped4 = limit(cr, mil4, mal4);
 
-		const float c1 = limit((std::abs(cr - clipped1) * 2) + d1, (float)0.0, (float)1.0);
-		const float c2 = limit((std::abs(cr - clipped2) * 2) + d2, (float)0.0, (float)1.0);
-		const float c3 = limit((std::abs(cr - clipped3) * 2) + d3, (float)0.0, (float)1.0);
-		const float c4 = limit((std::abs(cr - clipped4) * 2) + d4, (float)0.0, (float)1.0);
+		const float c1 = limit((std::abs(cr - clipped1) * 2) + d1, minimum, maximum);
+		const float c2 = limit((std::abs(cr - clipped2) * 2) + d2, minimum, maximum);
+		const float c3 = limit((std::abs(cr - clipped3) * 2) + d3, minimum, maximum);
+		const float c4 = limit((std::abs(cr - clipped4) * 2) + d4, minimum, maximum);
 
 		const float mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
 
@@ -180,7 +190,7 @@ class OpRG07
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		const float mal1 = std::max(std::max(a1, a8), c);
 		const float mil1 = std::min(std::min(a1, a8), c);
 
@@ -225,7 +235,17 @@ class OpRG08
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+		
 		const float mal1 = std::max(std::max(a1, a8), c);
 		const float mil1 = std::min(std::min(a1, a8), c);
 
@@ -248,10 +268,10 @@ public:
 		const float clipped3 = limit(cr, mil3, mal3);
 		const float clipped4 = limit(cr, mil4, mal4);
 
-		const float c1 = limit(std::abs(cr - clipped1) + (d1 * 2), (float)0.0, (float)1.0);
-		const float c2 = limit(std::abs(cr - clipped2) + (d2 * 2), (float)0.0, (float)1.0);
-		const float c3 = limit(std::abs(cr - clipped3) + (d3 * 2), (float)0.0, (float)1.0);
-		const float c4 = limit(std::abs(cr - clipped4) + (d4 * 2), (float)0.0, (float)1.0);
+		const float c1 = limit(std::abs(cr - clipped1) + (d1 * 2), minimum, maximum);
+		const float c2 = limit(std::abs(cr - clipped2) + (d2 * 2), minimum, maximum);
+		const float c3 = limit(std::abs(cr - clipped3) + (d3 * 2), minimum, maximum);
+		const float c4 = limit(std::abs(cr - clipped4) + (d4 * 2), minimum, maximum);
 
 		const float mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
 
@@ -270,7 +290,7 @@ class OpRG09
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		const float mal1 = std::max(std::max(a1, a8), c);
 		const float mil1 = std::min(std::min(a1, a8), c);
 
@@ -305,7 +325,7 @@ class OpRG10
 {
 public:
 	typedef    ConvUnsigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		const float d1 = std::abs(cr - a1);
 		const float d2 = std::abs(cr - a2);
 		const float d3 = std::abs(cr - a3);
@@ -343,7 +363,7 @@ class OpRG12
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		float                a[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
 
 		std::sort(&a[0], (&a[0]) + 8);
@@ -358,7 +378,7 @@ class OpRG13
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		float                a[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
 
 		std::sort(&a[0], (&a[0]) + 8);
@@ -373,7 +393,7 @@ class OpRG14
 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		float                a[8] = { a1, a2, a3, a4, a5, a6, a7, a8 };
 
 		std::sort(&a[0], (&a[0]) + 8);
@@ -387,7 +407,7 @@ public:
 class OpRG15 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRepair16_SORT_AXIS_CPP
 
 		const float      c1 = std::abs(c - limit(c, mi1, ma1));
@@ -426,18 +446,28 @@ public:
 class OpRG16 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRepair16_SORT_AXIS_CPP
 
-			const float      d1 = ma1 - mi1;
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+
+		const float      d1 = ma1 - mi1;
 		const float      d2 = ma2 - mi2;
 		const float      d3 = ma3 - mi3;
 		const float      d4 = ma4 - mi4;
 
-		const float      c1 = limit((std::abs(c - limit(c, mi1, ma1)) * 2) + d1, (float)0.0, (float)1.0);
-		const float      c2 = limit((std::abs(c - limit(c, mi2, ma2)) * 2) + d2, (float)0.0, (float)1.0);
-		const float      c3 = limit((std::abs(c - limit(c, mi3, ma3)) * 2) + d3, (float)0.0, (float)1.0);
-		const float      c4 = limit((std::abs(c - limit(c, mi4, ma4)) * 2) + d4, (float)0.0, (float)1.0);
+		const float      c1 = limit((std::abs(c - limit(c, mi1, ma1)) * 2) + d1, minimum, maximum);
+		const float      c2 = limit((std::abs(c - limit(c, mi2, ma2)) * 2) + d2, minimum, maximum);
+		const float      c3 = limit((std::abs(c - limit(c, mi3, ma3)) * 2) + d3, minimum, maximum);
+		const float      c4 = limit((std::abs(c - limit(c, mi4, ma4)) * 2) + d4, minimum, maximum);
 
 		const float      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
 
@@ -470,7 +500,7 @@ public:
 class OpRG17 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRepair16_SORT_AXIS_CPP
 
 		const float      l = std::max(std::max(mi1, mi2), std::max(mi3, mi4));
@@ -486,7 +516,7 @@ public:
 class OpRG18 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		const float      d1 = std::max(std::abs(c - a1), std::abs(c - a8));
 		const float      d2 = std::max(std::abs(c - a2), std::abs(c - a7));
 		const float      d3 = std::max(std::abs(c - a3), std::abs(c - a6));
@@ -523,7 +553,17 @@ public:
 class OpRG19 {
 public:
 	typedef    ConvUnsigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+		
 		const float d1 = std::abs(c - a1);
 		const float d2 = std::abs(c - a2);
 		const float d3 = std::abs(c - a3);
@@ -535,14 +575,24 @@ public:
 
 		const float mindiff = std::min(std::min(std::min(d1, d2), std::min(d3, d4)), std::min(std::min(d5, d6), std::min(d7, d8)));
 
-		return limit(cr, limit(c - mindiff, (float)0.0, (float)1.0), limit(c + mindiff, (float)0.0, (float)1.0));
+		return limit(cr, limit(c - mindiff, minimum, maximum), limit(c + mindiff, minimum, maximum));
 	}
 };
 
 class OpRG20 {
 public:
 	typedef    ConvUnsigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+		
 		const float d1 = std::abs(c - a1);
 		const float d2 = std::abs(c - a2);
 		const float d3 = std::abs(c - a3);
@@ -572,25 +622,34 @@ public:
 
 		maxdiff = limit(maxdiff, mindiff, d8);
 
-		return limit(cr, limit(c - maxdiff, (float)0.0, (float)1.0), limit(c + maxdiff, (float)0.0, (float)1.0));
+		return limit(cr, limit(c - maxdiff, minimum, maximum), limit(c + maxdiff, minimum, maximum));
 	}
 };
 
 class OpRG21 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRepair16_SORT_AXIS_CPP
 
-		const float d1 = limit(ma1 - c, (float)0.0, (float)1.0);
-		const float d2 = limit(ma2 - c, (float)0.0, (float)1.0);
-		const float d3 = limit(ma3 - c, (float)0.0, (float)1.0);
-		const float d4 = limit(ma4 - c, (float)0.0, (float)1.0);
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+		const float d1 = limit(ma1 - c, minimum, maximum);
+		const float d2 = limit(ma2 - c, minimum, maximum);
+		const float d3 = limit(ma3 - c, minimum, maximum);
+		const float d4 = limit(ma4 - c, minimum, maximum);
 
-		const float rd1 = limit(c - mi1, (float)0.0, (float)1.0);
-		const float rd2 = limit(c - mi2, (float)0.0, (float)1.0);
-		const float rd3 = limit(c - mi3, (float)0.0, (float)1.0);
-		const float rd4 = limit(c - mi4, (float)0.0, (float)1.0);
+		const float rd1 = limit(c - mi1, minimum, maximum);
+		const float rd2 = limit(c - mi2, minimum, maximum);
+		const float rd3 = limit(c - mi3, minimum, maximum);
+		const float rd4 = limit(c - mi4, minimum, maximum);
 
 		const float u1 = std::max(d1, rd1);
 		const float u2 = std::max(d2, rd2);
@@ -599,14 +658,24 @@ public:
 
 		const float u = std::min(std::min(u1, u2), std::min(u3, u4));
 
-		return limit(cr, limit(c - u, (float)0.0, (float)1.0), limit(c + u, (float)0.0, (float)1.0));
+		return limit(cr, limit(c - u, minimum, maximum), limit(c + u, minimum, maximum));
 	}
 };
 
 class OpRG22 {
 public:
 	typedef    ConvUnsigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+		
 		const float d1 = std::abs(cr - a1);
 		const float d2 = std::abs(cr - a2);
 		const float d3 = std::abs(cr - a3);
@@ -618,14 +687,24 @@ public:
 
 		const float mindiff = std::min(std::min(std::min(d1, d2), std::min(d3, d4)), std::min(std::min(d5, d6), std::min(d7, d8)));
 
-		return limit(c, limit(cr - mindiff, (float)0.0, (float)1.0), limit(cr + mindiff, (float)0.0, (float)1.0));
+		return limit(c, limit(cr - mindiff, minimum, maximum), limit(cr + mindiff, minimum, maximum));
 	}
 };
 
 class OpRG23 {
 public:
 	typedef    ConvUnsigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
+		
 		const float d1 = std::abs(cr - a1);
 		const float d2 = std::abs(cr - a2);
 		const float d3 = std::abs(cr - a3);
@@ -655,25 +734,35 @@ public:
 
 		maxdiff = limit(maxdiff, mindiff, d8);
 
-		return limit(c, limit(cr - maxdiff, (float)0.0, (float)1.0), limit(cr + maxdiff, (float)0.0, (float)1.0));
+		return limit(c, limit(cr - maxdiff, minimum, maximum), limit(cr + maxdiff, minimum, maximum));
 	}
 };
 
 class OpRG24 {
 public:
 	typedef    ConvSigned    ConvSign;
-	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8) {
+	static __forceinline float rg(float cr, float a1, float a2, float a3, float a4, float c, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRepair16_SORT_AXIS_CPP
 
-		const float d1 = limit(ma1 - cr, (float)0.0, (float)1.0);
-		const float d2 = limit(ma2 - cr, (float)0.0, (float)1.0);
-		const float d3 = limit(ma3 - cr, (float)0.0, (float)1.0);
-		const float d4 = limit(ma4 - cr, (float)0.0, (float)1.0);
+		float maximum, minimum;
+		if (chroma) {
+			maximum = 0.5f;
+			minimum = -0.5f;
+		}
+		else {
+			maximum = 1.f;
+			minimum = 0.f;
+		}
 
-		const float rd1 = limit(cr - mi1, (float)0.0, (float)1.0);
-		const float rd2 = limit(cr - mi2, (float)0.0, (float)1.0);
-		const float rd3 = limit(cr - mi3, (float)0.0, (float)1.0);
-		const float rd4 = limit(cr - mi4, (float)0.0, (float)1.0);
+		const float d1 = limit(ma1 - cr, minimum, maximum);
+		const float d2 = limit(ma2 - cr, minimum, maximum);
+		const float d3 = limit(ma3 - cr, minimum, maximum);
+		const float d4 = limit(ma4 - cr, minimum, maximum);
+
+		const float rd1 = limit(cr - mi1, minimum, maximum);
+		const float rd2 = limit(cr - mi2, minimum, maximum);
+		const float rd3 = limit(cr - mi3, minimum, maximum);
+		const float rd4 = limit(cr - mi4, minimum, maximum);
 
 		const float u1 = std::max(d1, rd1);
 		const float u2 = std::max(d2, rd2);
@@ -682,7 +771,7 @@ public:
 
 		const float u = std::min(std::min(u1, u2), std::min(u3, u4));
 
-		return limit(c, limit(cr - u, (float)0.0, (float)1.0), limit(cr + u, (float)0.0, (float)1.0));
+		return limit(c, limit(cr - u, minimum, maximum), limit(cr + u, minimum, maximum));
 	}
 };
 
@@ -690,7 +779,7 @@ template <class OP, class T>
 class PlaneProc {
 public:
 
-static void process_subplane_cpp (const T *src1_ptr, const T *src2_ptr, T *dst_ptr, int stride, int width, int height)
+static void process_subplane_cpp (const T *src1_ptr, const T *src2_ptr, T *dst_ptr, int stride, int width, int height, const int chroma)
 {
     const int        y_b = 1;
     const int        y_e = height - 1;
@@ -711,7 +800,8 @@ static void process_subplane_cpp (const T *src1_ptr, const T *src2_ptr, T *dst_p
             src2_ptr,
             stride,
             1,
-            x_e
+            x_e,
+			chroma
         );
 
         dst_ptr [x_e] = src1_ptr [x_e];
@@ -722,7 +812,7 @@ static void process_subplane_cpp (const T *src1_ptr, const T *src2_ptr, T *dst_p
     }
 }
 
-static void process_row_cpp (T *dst_ptr, const T *src1_ptr, const T *src2_ptr, int stride_src, int x_beg, int x_end)
+static void process_row_cpp (T *dst_ptr, const T *src1_ptr, const T *src2_ptr, int stride_src, int x_beg, int x_end, const int chroma)
 {
     const int      om = stride_src - 1;
     const int      o0 = stride_src    ;
@@ -744,7 +834,7 @@ static void process_row_cpp (T *dst_ptr, const T *src1_ptr, const T *src2_ptr, i
         const float        a7 = src2_ptr [ o0];
         const float        a8 = src2_ptr [ op];
 
-        const float        res = OP::rg (cr, a1, a2, a3, a4, c, a5, a6, a7, a8);
+        const float        res = OP::rg (cr, a1, a2, a3, a4, c, a5, a6, a7, a8, chroma);
 
         dst_ptr [x] = res;
 
@@ -754,7 +844,7 @@ static void process_row_cpp (T *dst_ptr, const T *src1_ptr, const T *src2_ptr, i
 }
 
 template <class OP1, class T1>
-static void do_process_plane_cpp (const VSFrameRef *src1_frame, const VSFrameRef *src2_frame, VSFrameRef *dst_frame, int plane_id, const VSAPI *vsapi)
+static void do_process_plane_cpp (const VSFrameRef *src1_frame, const VSFrameRef *src2_frame, VSFrameRef *dst_frame, int plane_id, const VSAPI *vsapi, const int chroma)
 {
     const int        w             = vsapi->getFrameWidth(src1_frame, plane_id);
     const int        h             = vsapi->getFrameHeight(src1_frame, plane_id);
@@ -768,7 +858,7 @@ static void do_process_plane_cpp (const VSFrameRef *src1_frame, const VSFrameRef
     memcpy (dst_ptr, src1_ptr, stride);
 
     // Main content
-    PlaneProc<OP1, T1>::process_subplane_cpp(src1_ptr, src2_ptr, dst_ptr, stride/sizeof(T1), w, h);
+    PlaneProc<OP1, T1>::process_subplane_cpp(src1_ptr, src2_ptr, dst_ptr, stride/sizeof(T1), w, h, chroma);
 
     // Last line
     const int        lp = (h - 1) * stride/sizeof(T1);
@@ -803,7 +893,7 @@ static const VSFrameRef *VS_CC repairGetFrame(int n, int activationReason, void 
         VSFrameRef *dst_frame = vsapi->newVideoFrame2(vsapi->getFrameFormat(src1_frame), vsapi->getFrameWidth(src1_frame, 0), vsapi->getFrameHeight(src1_frame, 0), cp_planes, planes, src1_frame, core);
 
 
-#define PROC_ARGS(op) PlaneProc <op, float>::do_process_plane_cpp<op, float>(src1_frame, src2_frame, dst_frame, i, vsapi); break;
+#define PROC_ARGS(op) PlaneProc <op, float>::do_process_plane_cpp<op, float>(src1_frame, src2_frame, dst_frame, i, vsapi, i && d->vi->format->colorFamily != cmRGB); break;
 
             for (int i = 0; i < d->vi->format->numPlanes; i++) {
                 switch (d->mode[i])
