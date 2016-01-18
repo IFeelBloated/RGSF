@@ -29,8 +29,16 @@ static void verticalMedian(const T * VS_RESTRICT srcp, T * VS_RESTRICT dstp, con
 }
 
 template<typename T>
-static void relaxedVerticalMedian(const T * VS_RESTRICT srcp, T * VS_RESTRICT dstp, const int width, const int height, const int stride) {
-    const float peak = 1.0;
+static void relaxedVerticalMedian(const T * VS_RESTRICT srcp, T * VS_RESTRICT dstp, const int width, const int height, const int stride, const int chroma) {
+	float maximum, minimum;
+	if (chroma) {
+		maximum = 0.5f;
+		minimum = -0.5f;
+	}
+	else {
+		maximum = 1.f;
+		minimum = 0.f;
+	}
 
     memcpy(dstp, srcp, stride * sizeof(T) * 2);
 
@@ -45,8 +53,8 @@ static void relaxedVerticalMedian(const T * VS_RESTRICT srcp, T * VS_RESTRICT ds
             const T n1 = srcp[x + stride];
             const T n2 = srcp[x + stride * 2];
 
-            const T upper = std::max<float>(std::max<float>(std::min<float>(limit(limit(p1 - p2, (float)0.0, peak) + p1, (float)0.0, peak), limit(limit(n1 - n2, (float)0.0, peak) + n1, (float)0.0, peak)), p1), n1);
-            const T lower = std::min<float>(std::min<float>(p1, n1), std::max<float>(limit(p1 - limit(p2 - p1, (float)0.0, peak), (float)0.0, peak), limit(n1 - limit(n2 - n1, (float)0.0, peak), (float)0.0, peak)));
+            const T upper = std::max<float>(std::max<float>(std::min<float>(limit(limit(p1 - p2, minimum, maximum) + p1, minimum, maximum), limit(limit(n1 - n2, minimum, maximum) + n1, minimum, maximum)), p1), n1);
+            const T lower = std::min<float>(std::min<float>(p1, n1), std::max<float>(limit(p1 - limit(p2 - p1, minimum, maximum), minimum, maximum), limit(n1 - limit(n2 - n1, minimum, maximum), minimum, maximum)));
 
             dstp[x] = limit(c, lower, upper);
         }
@@ -84,7 +92,7 @@ static const VSFrameRef *VS_CC verticalCleanerGetFrame(int n, int activationReas
             if (d->mode[plane] == 1) {
                     verticalMedian<float>(reinterpret_cast<const float *>(srcp), reinterpret_cast<float *>(dstp), width, height, stride / 4);
             } else if (d->mode[plane] == 2) {
-                    relaxedVerticalMedian<float>(reinterpret_cast<const float *>(srcp), reinterpret_cast<float *>(dstp), width, height, stride / 4);
+                    relaxedVerticalMedian<float>(reinterpret_cast<const float *>(srcp), reinterpret_cast<float *>(dstp), width, height, stride / 4, plane && d->vi->format->colorFamily != cmRGB);
             }
         }
 
