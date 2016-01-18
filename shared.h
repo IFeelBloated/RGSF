@@ -19,7 +19,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 #include "VapourSynth.h"
 #include "VSHelper.h"
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <cstdlib>
 
