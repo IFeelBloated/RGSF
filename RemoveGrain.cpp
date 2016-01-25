@@ -47,7 +47,7 @@ public:
 			std::max(std::max(a5, a6), std::max(a7, a8))
 			);
 
-		return (limit(c, mi, ma));
+		return limit(c, mi, ma);
 	}
 };
 
@@ -59,7 +59,7 @@ public:
 
 		std::sort(&a[0], (&a[7]) + 1);
 
-		return (limit(c, a[2 - 1], a[7 - 1]));
+		return limit(c, a[2 - 1], a[7 - 1]);
 	}
 };
 
@@ -71,7 +71,7 @@ public:
 
 		std::sort(&a[0], (&a[7]) + 1);
 
-		return (limit(c, a[3 - 1], a[6 - 1]));
+		return limit(c, a[3 - 1], a[6 - 1]);
 	}
 };
 
@@ -83,7 +83,7 @@ public:
 
 		std::sort(&a[0], (&a[7]) + 1);
 
-		return (limit(c, a[4 - 1], a[5 - 1]));
+		return limit(c, a[4 - 1], a[5 - 1]);
 	}
 };
 
@@ -94,24 +94,24 @@ public:
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-	    const float      c1 = std::abs(c - limit(c, mi1, ma1));
-		const float      c2 = std::abs(c - limit(c, mi2, ma2));
-		const float      c3 = std::abs(c - limit(c, mi3, ma3));
-		const float      c4 = std::abs(c - limit(c, mi4, ma4));
+			const double      c1 = std::abs(static_cast<double>(c) - limit(c, mi1, ma1));
+		const double      c2 = std::abs(static_cast<double>(c) - limit(c, mi2, ma2));
+		const double      c3 = std::abs(static_cast<double>(c) - limit(c, mi3, ma3));
+		const double      c4 = std::abs(static_cast<double>(c) - limit(c, mi4, ma4));
 
-		const float      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
+		const double      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
 
 		if (mindiff == c4) {
-			return (limit(c, mi4, ma4));
+			return limit(c, mi4, ma4);
 		}
 		else if (mindiff == c2) {
-			return (limit(c, mi2, ma2));
+			return limit(c, mi2, ma2);
 		}
 		else if (mindiff == c3) {
-			return (limit(c, mi3, ma3));
+			return limit(c, mi3, ma3);
 		}
 
-		return (limit(c, mi1, ma1));
+		return limit(c, mi1, ma1);
 	}
 };
 
@@ -123,44 +123,44 @@ public:
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-		float maximum, minimum;
+			double maximum, minimum;
 		if (chroma) {
-			maximum = 0.5f;
-			minimum = -0.5f;
+			maximum = 0.5;
+			minimum = -0.5;
 		}
 		else {
-			maximum = 1.f;
-			minimum = 0.f;
+			maximum = 1.;
+			minimum = 0.;
 		}
 
-		const float      d1 = ma1 - mi1;
-		const float      d2 = ma2 - mi2;
-		const float      d3 = ma3 - mi3;
-		const float      d4 = ma4 - mi4;
+		const double      d1 = static_cast<double>(ma1) - mi1;
+		const double      d2 = static_cast<double>(ma2) - mi2;
+		const double      d3 = static_cast<double>(ma3) - mi3;
+		const double      d4 = static_cast<double>(ma4) - mi4;
 
 		const float      cli1 = limit(c, mi1, ma1);
 		const float      cli2 = limit(c, mi2, ma2);
 		const float      cli3 = limit(c, mi3, ma3);
 		const float      cli4 = limit(c, mi4, ma4);
 
-		const float      c1 = limit((std::abs(c - cli1) * 2) + d1, minimum, maximum);
-		const float      c2 = limit((std::abs(c - cli2) * 2) + d2, minimum, maximum);
-		const float      c3 = limit((std::abs(c - cli3) * 2) + d3, minimum, maximum);
-		const float      c4 = limit((std::abs(c - cli4) * 2) + d4, minimum, maximum);
+		const double      c1 = limit((std::abs(static_cast<double>(c) - cli1) * 2.) + d1, minimum, maximum);
+		const double      c2 = limit((std::abs(static_cast<double>(c) - cli2) * 2.) + d2, minimum, maximum);
+		const double      c3 = limit((std::abs(static_cast<double>(c) - cli3) * 2.) + d3, minimum, maximum);
+		const double      c4 = limit((std::abs(static_cast<double>(c) - cli4) * 2.) + d4, minimum, maximum);
 
-		const float      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
+		const double      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
 
 		if (mindiff == c4) {
-			return (cli4);
+			return cli4;
 		}
 		else if (mindiff == c2) {
-			return (cli2);
+			return cli2;
 		}
 		else if (mindiff == c3) {
-			return (cli3);
+			return cli3;
 		}
 
-		return (cli1);
+		return cli1;
 	}
 };
 
@@ -171,34 +171,34 @@ public:
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-		const float      d1 = ma1 - mi1;
-		const float      d2 = ma2 - mi2;
-		const float      d3 = ma3 - mi3;
-		const float      d4 = ma4 - mi4;
+			const double      d1 = static_cast<double>(ma1) - mi1;
+		const double      d2 = static_cast<double>(ma2) - mi2;
+		const double      d3 = static_cast<double>(ma3) - mi3;
+		const double      d4 = static_cast<double>(ma4) - mi4;
 
 		const float      cli1 = limit(c, mi1, ma1);
 		const float      cli2 = limit(c, mi2, ma2);
 		const float      cli3 = limit(c, mi3, ma3);
 		const float      cli4 = limit(c, mi4, ma4);
 
-		const float      c1 = std::abs(c - cli1) + d1;
-		const float      c2 = std::abs(c - cli2) + d2;
-		const float      c3 = std::abs(c - cli3) + d3;
-		const float      c4 = std::abs(c - cli4) + d4;
+		const double      c1 = std::abs(static_cast<double>(c) - cli1) + d1;
+		const double      c2 = std::abs(static_cast<double>(c) - cli2) + d2;
+		const double      c3 = std::abs(static_cast<double>(c) - cli3) + d3;
+		const double      c4 = std::abs(static_cast<double>(c) - cli4) + d4;
 
-		const float      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
+		const double      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
 
 		if (mindiff == c4) {
-			return (cli4);
+			return cli4;
 		}
 		else if (mindiff == c2) {
-			return (cli2);
+			return cli2;
 		}
 		else if (mindiff == c3) {
-			return (cli3);
+			return cli3;
 		}
 
-		return (cli1);
+		return cli1;
 	}
 };
 
@@ -209,46 +209,47 @@ public:
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-		float maximum, minimum;
+			double maximum, minimum;
 		if (chroma) {
-			maximum = 0.5f;
-			minimum = -0.5f;
+			maximum = 0.5;
+			minimum = -0.5;
 		}
 		else {
-			maximum = 1.f;
-			minimum = 0.f;
+			maximum = 1.;
+			minimum = 0.;
 		}
 
-		const float      d1 = ma1 - mi1;
-		const float      d2 = ma2 - mi2;
-		const float      d3 = ma3 - mi3;
-		const float      d4 = ma4 - mi4;
+		const double      d1 = static_cast<double>(ma1) - mi1;
+		const double      d2 = static_cast<double>(ma2) - mi2;
+		const double      d3 = static_cast<double>(ma3) - mi3;
+		const double      d4 = static_cast<double>(ma4) - mi4;
 
 		const float      cli1 = limit(c, mi1, ma1);
 		const float      cli2 = limit(c, mi2, ma2);
 		const float      cli3 = limit(c, mi3, ma3);
 		const float      cli4 = limit(c, mi4, ma4);
 
-		const float      c1 = limit(std::abs(c - cli1) + (d1 * 2), minimum, maximum);
-		const float      c2 = limit(std::abs(c - cli2) + (d2 * 2), minimum, maximum);
-		const float      c3 = limit(std::abs(c - cli3) + (d3 * 2), minimum, maximum);
-		const float      c4 = limit(std::abs(c - cli4) + (d4 * 2), minimum, maximum);
+		const double      c1 = limit(std::abs(static_cast<double>(c) - cli1) + (d1 * 2.), minimum, maximum);
+		const double      c2 = limit(std::abs(static_cast<double>(c) - cli2) + (d2 * 2.), minimum, maximum);
+		const double      c3 = limit(std::abs(static_cast<double>(c) - cli3) + (d3 * 2.), minimum, maximum);
+		const double      c4 = limit(std::abs(static_cast<double>(c) - cli4) + (d4 * 2.), minimum, maximum);
 
-		const float      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
+		const double      mindiff = std::min(std::min(c1, c2), std::min(c3, c4));
 
 		if (mindiff == c4) {
-			return (cli4);
+			return cli4;
 		}
 		else if (mindiff == c2) {
-			return (cli2);
+			return cli2;
 		}
 		else if (mindiff == c3) {
-			return (cli3);
+			return cli3;
 		}
 
-		return (cli1);
+		return cli1;
 	}
 };
+
 class OpRG09 : public LineProcAll {
 public:
 	typedef ConvSigned ConvSign;
@@ -256,41 +257,42 @@ public:
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-		const float      d1 = ma1 - mi1;
-		const float      d2 = ma2 - mi2;
-		const float      d3 = ma3 - mi3;
-		const float      d4 = ma4 - mi4;
+			const double      d1 = static_cast<double>(ma1) - mi1;
+		const double      d2 = static_cast<double>(ma2) - mi2;
+		const double      d3 = static_cast<double>(ma3) - mi3;
+		const double      d4 = static_cast<double>(ma4) - mi4;
 
-		const float      mindiff = std::min(std::min(d1, d2), std::min(d3, d4));
+		const double      mindiff = std::min(std::min(d1, d2), std::min(d3, d4));
 
 		if (mindiff == d4) {
-			return (limit(c, mi4, ma4));
+			return limit(c, mi4, ma4);
 		}
 		else if (mindiff == d2) {
-			return (limit(c, mi2, ma2));
+			return limit(c, mi2, ma2);
 		}
 		else if (mindiff == d3) {
-			return (limit(c, mi3, ma3));
+			return limit(c, mi3, ma3);
 		}
 
-		return (limit(c, mi1, ma1));
+		return limit(c, mi1, ma1);
 	}
 };
+
 class OpRG10 : public LineProcAll {
 public:
 	typedef ConvUnsigned ConvSign;
 	static __forceinline float
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float      d1 = std::abs(c - a1);
-		const float      d2 = std::abs(c - a2);
-		const float      d3 = std::abs(c - a3);
-		const float      d4 = std::abs(c - a4);
-		const float      d5 = std::abs(c - a5);
-		const float      d6 = std::abs(c - a6);
-		const float      d7 = std::abs(c - a7);
-		const float      d8 = std::abs(c - a8);
+		const double      d1 = std::abs(static_cast<double>(c) - a1);
+		const double      d2 = std::abs(static_cast<double>(c) - a2);
+		const double      d3 = std::abs(static_cast<double>(c) - a3);
+		const double      d4 = std::abs(static_cast<double>(c) - a4);
+		const double      d5 = std::abs(static_cast<double>(c) - a5);
+		const double      d6 = std::abs(static_cast<double>(c) - a6);
+		const double      d7 = std::abs(static_cast<double>(c) - a7);
+		const double      d8 = std::abs(static_cast<double>(c) - a8);
 
-		const float      mindiff = std::min(
+		const double      mindiff = std::min(
 			std::min(std::min(d1, d2), std::min(d3, d4)),
 			std::min(std::min(d5, d6), std::min(d7, d8))
 			);
@@ -311,10 +313,10 @@ class OpRG11 : public LineProcAll {
 public:
 	typedef    ConvUnsigned    ConvSign;
 	static __forceinline float rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float        sum = 4 * c + 2 * (a2 + a4 + a5 + a7) + a1 + a3 + a6 + a8;
-		const float        val = sum / 16;
+		const double        sum = 4. * static_cast<double>(c) + 2. * (static_cast<double>(a2) + a4 + a5 + a7) + a1 + a3 + a6 + a8;
+		const double        val = sum / 16.;
 
-		return (val);
+		return static_cast<float>(val);
 	}
 };
 
@@ -330,47 +332,51 @@ class OpRG1314 {
 public:
 	static __forceinline float
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float      d1 = std::abs(a1 - a8);
-		const float      d2 = std::abs(a2 - a7);
-		const float      d3 = std::abs(a3 - a6);
+		const double      d1 = std::abs(static_cast<double>(a1) - a8);
+		const double      d2 = std::abs(static_cast<double>(a2) - a7);
+		const double      d3 = std::abs(static_cast<double>(a3) - a6);
 
-		const float      mindiff = std::min(std::min(d1, d2), d3);
+		const double      mindiff = std::min(std::min(d1, d2), d3);
 
 		if (mindiff == d2) {
-			return ((a2 + a7) / 2);
+			return static_cast<float>((static_cast<double>(a2) + a7) / 2.);
 		}
 		if (mindiff == d3) {
-			return ((a3 + a6) / 2);
+			return static_cast<float>((static_cast<double>(a3) + a6) / 2.);
 		}
 
-		return ((a1 + a8) / 2);
+		return static_cast<float>((static_cast<double>(a1) + a8) / 2.);
 	}
 };
+
 class OpRG13 : public OpRG1314, public LineProcEven {};
 class OpRG14 : public OpRG1314, public LineProcOdd {};
+
 class OpRG1516 {
 public:
 	static __forceinline float
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float      d1 = std::abs(a1 - a8);
-		const float      d2 = std::abs(a2 - a7);
-		const float      d3 = std::abs(a3 - a6);
+		const double      d1 = std::abs(static_cast<double>(a1) - a8);
+		const double      d2 = std::abs(static_cast<double>(a2) - a7);
+		const double      d3 = std::abs(static_cast<double>(a3) - a6);
 
-		const float      mindiff = std::min(std::min(d1, d2), d3);
-		const float      average = (2 * (a2 + a7) + a1 + a3 + a6 + a8) / 8;
+		const double      mindiff = std::min(std::min(d1, d2), d3);
+		const float      average = static_cast<float>((2. * (static_cast<double>(a2) + a7) + a1 + a3 + a6 + a8) / 8.);
 
 		if (mindiff == d2) {
-			return (limit(average, std::min(a2, a7), std::max(a2, a7)));
+			return limit(average, std::min(a2, a7), std::max(a2, a7));
 		}
 		if (mindiff == d3) {
-			return (limit(average, std::min(a3, a6), std::max(a3, a6)));
+			return limit(average, std::min(a3, a6), std::max(a3, a6));
 		}
 
-		return (limit(average, std::min(a1, a8), std::max(a1, a8)));
+		return limit(average, std::min(a1, a8), std::max(a1, a8));
 	}
 };
+
 class OpRG15 : public OpRG1516, public LineProcEven {};
 class OpRG16 : public OpRG1516, public LineProcOdd {};
+
 class OpRG17 : public LineProcAll {
 public:
 	typedef ConvSigned ConvSign;
@@ -378,10 +384,10 @@ public:
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-		const float      l = std::max(std::max(mi1, mi2), std::max(mi3, mi4));
+			const float      l = std::max(std::max(mi1, mi2), std::max(mi3, mi4));
 		const float      u = std::min(std::min(ma1, ma2), std::min(ma3, ma4));
 
-		return (limit(c, std::min(l, u), std::max(l, u)));
+		return limit(c, std::min(l, u), std::max(l, u));
 	}
 };
 
@@ -390,24 +396,24 @@ public:
 	typedef ConvUnsigned ConvSign;
 	static __forceinline float
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float      d1 = std::max(std::abs(c - a1), std::abs(c - a8));
-		const float      d2 = std::max(std::abs(c - a2), std::abs(c - a7));
-		const float      d3 = std::max(std::abs(c - a3), std::abs(c - a6));
-		const float      d4 = std::max(std::abs(c - a4), std::abs(c - a5));
+		const double      d1 = std::max(std::abs(static_cast<double>(c) - a1), std::abs(static_cast<double>(c) - a8));
+		const double      d2 = std::max(std::abs(static_cast<double>(c) - a2), std::abs(static_cast<double>(c) - a7));
+		const double      d3 = std::max(std::abs(static_cast<double>(c) - a3), std::abs(static_cast<double>(c) - a6));
+		const double      d4 = std::max(std::abs(static_cast<double>(c) - a4), std::abs(static_cast<double>(c) - a5));
 
-		const float      mindiff = std::min(std::min(d1, d2), std::min(d3, d4));
+		const double      mindiff = std::min(std::min(d1, d2), std::min(d3, d4));
 
 		if (mindiff == d4) {
-			return (limit(c, std::min(a4, a5), std::max(a4, a5)));
+			return limit(c, std::min(a4, a5), std::max(a4, a5));
 		}
 		if (mindiff == d2) {
-			return (limit(c, std::min(a2, a7), std::max(a2, a7)));
+			return limit(c, std::min(a2, a7), std::max(a2, a7));
 		}
 		if (mindiff == d3) {
-			return (limit(c, std::min(a3, a6), std::max(a3, a6)));
+			return limit(c, std::min(a3, a6), std::max(a3, a6));
 		}
 
-		return (limit(c, std::min(a1, a8), std::max(a1, a8)));
+		return limit(c, std::min(a1, a8), std::max(a1, a8));
 	}
 };
 
@@ -415,10 +421,10 @@ class OpRG19 : public LineProcAll {
 public:
 	typedef    ConvUnsigned    ConvSign;
 	static __forceinline float rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float        sum = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
-		const float        val = sum / 8;
+		const double        sum = static_cast<double>(a1) + a2 + a3 + a4 + a5 + a6 + a7 + a8;
+		const double        val = sum / 8.;
 
-		return (val);
+		return static_cast<float>(val);
 	}
 };
 
@@ -426,10 +432,10 @@ class OpRG20 : public LineProcAll {
 public:
 	typedef    ConvUnsigned    ConvSign;
 	static __forceinline float rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float        sum = a1 + a2 + a3 + a4 + c + a5 + a6 + a7 + a8;
-		const float        val = sum / 9;
+		const double        sum = static_cast<double>(a1) + a2 + a3 + a4 + c + a5 + a6 + a7 + a8;
+		const double        val = sum / 9.;
 
-		return (val);
+		return static_cast<float>(val);
 	}
 };
 
@@ -438,15 +444,15 @@ public:
 	typedef ConvUnsigned ConvSign;
 	static __forceinline float
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
-		const float      l1 = (a1 + a8) / 2;
-		const float      l2 = (a2 + a7) / 2;
-		const float      l3 = (a3 + a6) / 2;
-		const float      l4 = (a4 + a5) / 2;
+		const double      l1 = (static_cast<double>(a1) + a8) / 2.;
+		const double      l2 = (static_cast<double>(a2) + a7) / 2.;
+		const double      l3 = (static_cast<double>(a3) + a6) / 2.;
+		const double      l4 = (static_cast<double>(a4) + a5) / 2.;
 
-		const float      mi = std::min(std::min(l1, l2), std::min(l3, l4));
-		const float      ma = std::max(std::max(l1, l2), std::max(l3, l4));
+		const double      mi = std::min(std::min(l1, l2), std::min(l3, l4));
+		const double      ma = std::max(std::max(l1, l2), std::max(l3, l4));
 
-		return (limit(c, mi, ma));
+		return static_cast<float>(limit(static_cast<double>(c), mi, ma));
 	}
 };
 
@@ -464,89 +470,87 @@ public:
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-		float minimum;
+			double minimum;
 		if (chroma)
-			minimum = -0.5f;
+			minimum = -0.5;
 		else
-			minimum = 0.f;
+			minimum = 0.;
 
-		const float      linediff1 = ma1 - mi1;
-		const float      linediff2 = ma2 - mi2;
-		const float      linediff3 = ma3 - mi3;
-		const float      linediff4 = ma4 - mi4;
+		const double      linediff1 = static_cast<double>(ma1) - mi1;
+		const double      linediff2 = static_cast<double>(ma2) - mi2;
+		const double      linediff3 = static_cast<double>(ma3) - mi3;
+		const double      linediff4 = static_cast<double>(ma4) - mi4;
 
-		const float      u1 = std::min(c - ma1, linediff1);
-		const float      u2 = std::min(c - ma2, linediff2);
-		const float      u3 = std::min(c - ma3, linediff3);
-		const float      u4 = std::min(c - ma4, linediff4);
-		const float      u = std::max(
+		const double      u1 = std::min(static_cast<double>(c) - ma1, linediff1);
+		const double      u2 = std::min(static_cast<double>(c) - ma2, linediff2);
+		const double      u3 = std::min(static_cast<double>(c) - ma3, linediff3);
+		const double      u4 = std::min(static_cast<double>(c) - ma4, linediff4);
+		const double      u = std::max(
 			std::max(std::max(u1, u2), std::max(u3, u4)),
 			minimum
 			);
 
-		const float      d1 = std::min(mi1 - c, linediff1);
-		const float      d2 = std::min(mi2 - c, linediff2);
-		const float      d3 = std::min(mi3 - c, linediff3);
-		const float      d4 = std::min(mi4 - c, linediff4);
-		const float      d = std::max(
+		const double      d1 = std::min(static_cast<double>(mi1) - c, linediff1);
+		const double      d2 = std::min(static_cast<double>(mi2) - c, linediff2);
+		const double      d3 = std::min(static_cast<double>(mi3) - c, linediff3);
+		const double      d4 = std::min(static_cast<double>(mi4) - c, linediff4);
+		const double      d = std::max(
 			std::max(std::max(d1, d2), std::max(d3, d4)),
 			minimum
 			);
 
-		return (c - u + d);  // This probably will never overflow.
+		return static_cast<float>(static_cast<double>(c) - u + d);  // This probably will never overflow.
 	}
 };
+
 class OpRG24 : public LineProcAll {
 public:
 	static __forceinline float
 		rg(float c, float a1, float a2, float a3, float a4, float a5, float a6, float a7, float a8, const int chroma) {
 		AvsFilterRemoveGrain16_SORT_AXIS_CPP
 
-		float minimum;
+			double minimum;
 		if (chroma)
-			minimum = -0.5f;
+			minimum = -0.5;
 		else
-			minimum = 0.f;
+			minimum = 0.;
 
-		const float      linediff1 = ma1 - mi1;
-		const float      linediff2 = ma2 - mi2;
-		const float      linediff3 = ma3 - mi3;
-		const float      linediff4 = ma4 - mi4;
+		const double      linediff1 = static_cast<double>(ma1) - mi1;
+		const double      linediff2 = static_cast<double>(ma2) - mi2;
+		const double      linediff3 = static_cast<double>(ma3) - mi3;
+		const double      linediff4 = static_cast<double>(ma4) - mi4;
 
-		const float      tu1 = c - ma1;
-		const float      tu2 = c - ma2;
-		const float      tu3 = c - ma3;
-		const float      tu4 = c - ma4;
+		const double      tu1 = static_cast<double>(c) - ma1;
+		const double      tu2 = static_cast<double>(c) - ma2;
+		const double      tu3 = static_cast<double>(c) - ma3;
+		const double      tu4 = static_cast<double>(c) - ma4;
 
-		const float      u1 = std::min(tu1, linediff1 - tu1);
-		const float      u2 = std::min(tu2, linediff2 - tu2);
-		const float      u3 = std::min(tu3, linediff3 - tu3);
-		const float      u4 = std::min(tu4, linediff4 - tu4);
-		const float      u = std::max(
+		const double      u1 = std::min(tu1, linediff1 - tu1);
+		const double      u2 = std::min(tu2, linediff2 - tu2);
+		const double      u3 = std::min(tu3, linediff3 - tu3);
+		const double      u4 = std::min(tu4, linediff4 - tu4);
+		const double      u = std::max(
 			std::max(std::max(u1, u2), std::max(u3, u4)),
 			minimum
 			);
 
-		const float      td1 = mi1 - c;
-		const float      td2 = mi2 - c;
-		const float      td3 = mi3 - c;
-		const float      td4 = mi4 - c;
+		const double      td1 = static_cast<double>(mi1) - c;
+		const double      td2 = static_cast<double>(mi2) - c;
+		const double      td3 = static_cast<double>(mi3) - c;
+		const double      td4 = static_cast<double>(mi4) - c;
 
-		const float      d1 = std::min(td1, linediff1 - td1);
-		const float      d2 = std::min(td2, linediff2 - td2);
-		const float      d3 = std::min(td3, linediff3 - td3);
-		const float      d4 = std::min(td4, linediff4 - td4);
-		const float      d = std::max(
+		const double      d1 = std::min(td1, linediff1 - td1);
+		const double      d2 = std::min(td2, linediff2 - td2);
+		const double      d3 = std::min(td3, linediff3 - td3);
+		const double      d4 = std::min(td4, linediff4 - td4);
+		const double      d = std::max(
 			std::max(std::max(d1, d2), std::max(d3, d4)),
 			minimum
 			);
 
-		return (c - u + d);  // This probably will never overflow.
+		return static_cast<float>(static_cast<double>(c) - u + d);  // This probably will never overflow.
 	}
 };
-
-
-
 
 template <class OP, class T>
 class PlaneProc {
@@ -602,7 +606,7 @@ public:
 			const float        a2 = src_ptr[-o0];
 			const float        a3 = src_ptr[-om];
 			const float        a4 = src_ptr[-1];
-			const float        c  = src_ptr[0];
+			const float        c = src_ptr[0];
 			const float        a5 = src_ptr[1];
 			const float        a6 = src_ptr[om];
 			const float        a7 = src_ptr[o0];
@@ -666,37 +670,37 @@ static const VSFrameRef *VS_CC removeGrainGetFrame(int n, int activationReason, 
 
 #define PROC_ARGS(op) PlaneProc <op, float>::do_process_plane_cpp<op, float>(src_frame, dst_frame, i, vsapi, i && d->vi->format->colorFamily != cmRGB); break;
 
-			for (int i = 0; i < d->vi->format->numPlanes; i++) {
-				switch (d->mode[i])
-				{
-				case  1: PROC_ARGS(OpRG01)
-				case  2: PROC_ARGS(OpRG02)
-				case  3: PROC_ARGS(OpRG03)
-				case  4: PROC_ARGS(OpRG04)
-				case  5: PROC_ARGS(OpRG05)
-				case  6: PROC_ARGS(OpRG06)
-				case  7: PROC_ARGS(OpRG07)
-				case  8: PROC_ARGS(OpRG08)
-				case  9: PROC_ARGS(OpRG09)
-				case 10: PROC_ARGS(OpRG10)
-				case 11: PROC_ARGS(OpRG11)
-				case 12: PROC_ARGS(OpRG12)
-				case 13: PROC_ARGS(OpRG13)
-				case 14: PROC_ARGS(OpRG14)
-				case 15: PROC_ARGS(OpRG15)
-				case 16: PROC_ARGS(OpRG16)
-				case 17: PROC_ARGS(OpRG17)
-				case 18: PROC_ARGS(OpRG18)
-				case 19: PROC_ARGS(OpRG19)
-				case 20: PROC_ARGS(OpRG20)
-				case 21: PROC_ARGS(OpRG21)
-				case 22: PROC_ARGS(OpRG22)
-				case 23: PROC_ARGS(OpRG23)
-				case 24: PROC_ARGS(OpRG24)
-				default: break;
-				}
+		for (int i = 0; i < d->vi->format->numPlanes; i++) {
+			switch (d->mode[i])
+			{
+			case  1: PROC_ARGS(OpRG01)
+			case  2: PROC_ARGS(OpRG02)
+			case  3: PROC_ARGS(OpRG03)
+			case  4: PROC_ARGS(OpRG04)
+			case  5: PROC_ARGS(OpRG05)
+			case  6: PROC_ARGS(OpRG06)
+			case  7: PROC_ARGS(OpRG07)
+			case  8: PROC_ARGS(OpRG08)
+			case  9: PROC_ARGS(OpRG09)
+			case 10: PROC_ARGS(OpRG10)
+			case 11: PROC_ARGS(OpRG11)
+			case 12: PROC_ARGS(OpRG12)
+			case 13: PROC_ARGS(OpRG13)
+			case 14: PROC_ARGS(OpRG14)
+			case 15: PROC_ARGS(OpRG15)
+			case 16: PROC_ARGS(OpRG16)
+			case 17: PROC_ARGS(OpRG17)
+			case 18: PROC_ARGS(OpRG18)
+			case 19: PROC_ARGS(OpRG19)
+			case 20: PROC_ARGS(OpRG20)
+			case 21: PROC_ARGS(OpRG21)
+			case 22: PROC_ARGS(OpRG22)
+			case 23: PROC_ARGS(OpRG23)
+			case 24: PROC_ARGS(OpRG24)
+			default: break;
 			}
-		
+		}
+
 
 		vsapi->freeFrame(src_frame);
 
