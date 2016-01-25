@@ -31,197 +31,203 @@ OTHER DEALINGS IN THE SOFTWARE.
 #define CLAMP(value, lower, upper) do { if (value < lower) value = lower; else if (value > upper) value = upper; } while(0)
 
 typedef struct {
-    VSNodeRef *cnode;
-    VSNodeRef *pnode;
-    VSNodeRef *nnode;
-    const VSVideoInfo *vi;
-    int mode;
-    int process[3];
+	VSNodeRef *cnode;
+	VSNodeRef *pnode;
+	VSNodeRef *nnode;
+	const VSVideoInfo *vi;
+	int mode;
+	int process[3];
 } ClenseData;
 
 
 static void VS_CC clenseInit(VSMap *in, VSMap *out, void **instanceData, VSNode *node, VSCore *core, const VSAPI *vsapi) {
-    ClenseData *d = static_cast<ClenseData *>(*instanceData);
-    vsapi->setVideoInfo(d->vi, 1, node);
+	ClenseData *d = static_cast<ClenseData *>(*instanceData);
+	vsapi->setVideoInfo(d->vi, 1, node);
 }
 
 struct PlaneProc {
-    template<typename T>
-    static void clenseProcessPlane(T* VS_RESTRICT pDst, const T* VS_RESTRICT pSrc, const T* VS_RESTRICT pRef1, const T* VS_RESTRICT pRef2, int stride, int width, int height) {
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x)
-                pDst[x] = std::min(std::max(pSrc[x], std::min(pRef1[x], pRef2[x])), std::max(pRef1[x], pRef2[x]));
-            pDst += stride;
-            pSrc += stride;
-            pRef1 += stride;
-            pRef2 += stride;
-        }
-    }
+	template<typename T>
+	static void clenseProcessPlane(T* VS_RESTRICT pDst, const T* VS_RESTRICT pSrc, const T* VS_RESTRICT pRef1, const T* VS_RESTRICT pRef2, int stride, int width, int height) {
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x)
+				pDst[x] = std::min(std::max(pSrc[x], std::min(pRef1[x], pRef2[x])), std::max(pRef1[x], pRef2[x]));
+			pDst += stride;
+			pSrc += stride;
+			pRef1 += stride;
+			pRef2 += stride;
+		}
+	}
 };
 
 struct PlaneProcFB {
-    template<typename T>
-    static void clenseProcessPlane(T* VS_RESTRICT pDst, const T* VS_RESTRICT pSrc, const T* VS_RESTRICT pRef1, const T* VS_RESTRICT pRef2, int stride, int width, int height) {
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-                T minref = std::min(pRef1[x], pRef2[x]);
-                T maxref = std::max(pRef1[x], pRef2[x]);
-                float lowref = minref * 2 - pRef2[x];
-                float upref = maxref * 2 - pRef2[x];
-                T src = pSrc[x];
-                CLAMP(src, std::max<float>(lowref, std::numeric_limits<T>::min()), std::min<float>(upref, std::numeric_limits<T>::max()));
-                pDst[x] = src;
-            }
+	template<typename T>
+	static void clenseProcessPlane(T* VS_RESTRICT pDst, const T* VS_RESTRICT pSrc, const T* VS_RESTRICT pRef1, const T* VS_RESTRICT pRef2, int stride, int width, int height) {
+		for (int y = 0; y < height; ++y) {
+			for (int x = 0; x < width; ++x) {
+				T minref = std::min(pRef1[x], pRef2[x]);
+				T maxref = std::max(pRef1[x], pRef2[x]);
+				double lowref = minref * 2. - pRef2[x];
+				double upref = maxref * 2. - pRef2[x];
+				double src = static_cast<double>(pSrc[x]);
+				CLAMP(src, lowref, upref);
+				pDst[x] = static_cast<float>(src);
+			}
 
-            pDst += stride;
-            pSrc += stride;
-            pRef1 += stride;
-            pRef2 += stride;
-        }
-    }
+			pDst += stride;
+			pSrc += stride;
+			pRef1 += stride;
+			pRef2 += stride;
+		}
+	}
 };
 
 template<typename T, typename Processor>
 static const VSFrameRef *VS_CC clenseGetFrame(int n, int activationReason, void **instanceData, void **frameData, VSFrameContext *frameCtx, VSCore *core, const VSAPI *vsapi) {
-    ClenseData *d = static_cast<ClenseData *>(*instanceData);
+	ClenseData *d = static_cast<ClenseData *>(*instanceData);
 
-    if (activationReason == arInitial) {
-        if (d->mode == cmNormal) {
-            if (n >= 1 && (!d->vi->numFrames || n <= d->vi->numFrames - 2)) {
-                *frameData = reinterpret_cast<void *>(1);
-                vsapi->requestFrameFilter(n - 1, d->pnode, frameCtx);
-                vsapi->requestFrameFilter(n, d->cnode, frameCtx);
-                vsapi->requestFrameFilter(n + 1, d->nnode, frameCtx);
-            } else {
-                vsapi->requestFrameFilter(n, d->cnode, frameCtx);
-            }
-        } else if (d->mode == cmForward) {
-            vsapi->requestFrameFilter(n, d->cnode, frameCtx);
-            if (!d->vi->numFrames || n <= d->vi->numFrames - 3) {
-                *frameData = reinterpret_cast<void *>(1);
-                vsapi->requestFrameFilter(n + 1, d->cnode, frameCtx);
-                vsapi->requestFrameFilter(n + 2, d->cnode, frameCtx);
-            }
-        } else if (d->mode == cmBackward) {
-            if (n >= 2) {
-                *frameData = reinterpret_cast<void *>(1);
-                vsapi->requestFrameFilter(n - 2, d->cnode, frameCtx);
-                vsapi->requestFrameFilter(n - 1, d->cnode, frameCtx);
-            }
-            vsapi->requestFrameFilter(n, d->cnode, frameCtx);
-        }
-    } else if (activationReason == arAllFramesReady) {
-        const VSFrameRef *src = nullptr, *frame1 = nullptr, *frame2 = nullptr;
+	if (activationReason == arInitial) {
+		if (d->mode == cmNormal) {
+			if (n >= 1 && (!d->vi->numFrames || n <= d->vi->numFrames - 2)) {
+				*frameData = reinterpret_cast<void *>(1);
+				vsapi->requestFrameFilter(n - 1, d->pnode, frameCtx);
+				vsapi->requestFrameFilter(n, d->cnode, frameCtx);
+				vsapi->requestFrameFilter(n + 1, d->nnode, frameCtx);
+			}
+			else {
+				vsapi->requestFrameFilter(n, d->cnode, frameCtx);
+			}
+		}
+		else if (d->mode == cmForward) {
+			vsapi->requestFrameFilter(n, d->cnode, frameCtx);
+			if (!d->vi->numFrames || n <= d->vi->numFrames - 3) {
+				*frameData = reinterpret_cast<void *>(1);
+				vsapi->requestFrameFilter(n + 1, d->cnode, frameCtx);
+				vsapi->requestFrameFilter(n + 2, d->cnode, frameCtx);
+			}
+		}
+		else if (d->mode == cmBackward) {
+			if (n >= 2) {
+				*frameData = reinterpret_cast<void *>(1);
+				vsapi->requestFrameFilter(n - 2, d->cnode, frameCtx);
+				vsapi->requestFrameFilter(n - 1, d->cnode, frameCtx);
+			}
+			vsapi->requestFrameFilter(n, d->cnode, frameCtx);
+		}
+	}
+	else if (activationReason == arAllFramesReady) {
+		const VSFrameRef *src = nullptr, *frame1 = nullptr, *frame2 = nullptr;
 
-        if (!*frameData) // skip processing on first/last frames
-            return vsapi->getFrameFilter(n, d->cnode, frameCtx);
+		if (!*frameData) // skip processing on first/last frames
+			return vsapi->getFrameFilter(n, d->cnode, frameCtx);
 
-        if (d->mode == cmNormal) {
-            frame1 = vsapi->getFrameFilter(n - 1, d->pnode, frameCtx);
-            src = vsapi->getFrameFilter(n, d->cnode, frameCtx);
-            frame2 = vsapi->getFrameFilter(n + 1, d->nnode, frameCtx);
-        } else if (d->mode == cmForward) {
-            src = vsapi->getFrameFilter(n, d->cnode, frameCtx);
-            frame1 = vsapi->getFrameFilter(n + 1, d->cnode, frameCtx);
-            frame2 = vsapi->getFrameFilter(n + 2, d->cnode, frameCtx);
-        } else if (d->mode == cmBackward) {
-            frame2 = vsapi->getFrameFilter(n - 2, d->cnode, frameCtx);
-            frame1 = vsapi->getFrameFilter(n - 1, d->cnode, frameCtx);
-            src = vsapi->getFrameFilter(n, d->cnode, frameCtx);
-        }
+		if (d->mode == cmNormal) {
+			frame1 = vsapi->getFrameFilter(n - 1, d->pnode, frameCtx);
+			src = vsapi->getFrameFilter(n, d->cnode, frameCtx);
+			frame2 = vsapi->getFrameFilter(n + 1, d->nnode, frameCtx);
+		}
+		else if (d->mode == cmForward) {
+			src = vsapi->getFrameFilter(n, d->cnode, frameCtx);
+			frame1 = vsapi->getFrameFilter(n + 1, d->cnode, frameCtx);
+			frame2 = vsapi->getFrameFilter(n + 2, d->cnode, frameCtx);
+		}
+		else if (d->mode == cmBackward) {
+			frame2 = vsapi->getFrameFilter(n - 2, d->cnode, frameCtx);
+			frame1 = vsapi->getFrameFilter(n - 1, d->cnode, frameCtx);
+			src = vsapi->getFrameFilter(n, d->cnode, frameCtx);
+		}
 
-        const int pl[] = { 0, 1, 2 };
-        const VSFrameRef *fr[] = { d->process[0] ? nullptr : src, d->process[1] ? nullptr : src, d->process[2] ? nullptr : src };
+		const int pl[] = { 0, 1, 2 };
+		const VSFrameRef *fr[] = { d->process[0] ? nullptr : src, d->process[1] ? nullptr : src, d->process[2] ? nullptr : src };
 
-        VSFrameRef *dst = vsapi->newVideoFrame2(d->vi->format, d->vi->width, d->vi->height, fr, pl, src, core);
+		VSFrameRef *dst = vsapi->newVideoFrame2(d->vi->format, d->vi->width, d->vi->height, fr, pl, src, core);
 
-        int numPlanes = d->vi->format->numPlanes;
-        for (int i = 0; i < numPlanes; i++) {
-            if (d->process[i]) {
-                Processor::template clenseProcessPlane<T>(
-                    reinterpret_cast<T *>(vsapi->getWritePtr(dst, i)),
-                    reinterpret_cast<const T *>(vsapi->getReadPtr(src, i)),
-                    reinterpret_cast<const T *>(vsapi->getReadPtr(frame1, i)),
-                    reinterpret_cast<const T *>(vsapi->getReadPtr(frame2, i)),
-                    vsapi->getStride(dst, i)/sizeof(T),
-                    vsapi->getFrameWidth(dst, i),
-                    vsapi->getFrameHeight(dst, i));
-            }
-        }
+		int numPlanes = d->vi->format->numPlanes;
+		for (int i = 0; i < numPlanes; i++) {
+			if (d->process[i]) {
+				Processor::template clenseProcessPlane<T>(
+					reinterpret_cast<T *>(vsapi->getWritePtr(dst, i)),
+					reinterpret_cast<const T *>(vsapi->getReadPtr(src, i)),
+					reinterpret_cast<const T *>(vsapi->getReadPtr(frame1, i)),
+					reinterpret_cast<const T *>(vsapi->getReadPtr(frame2, i)),
+					vsapi->getStride(dst, i) / sizeof(T),
+					vsapi->getFrameWidth(dst, i),
+					vsapi->getFrameHeight(dst, i));
+			}
+		}
 
-        vsapi->freeFrame(src);
-        vsapi->freeFrame(frame1);
-        vsapi->freeFrame(frame2);
+		vsapi->freeFrame(src);
+		vsapi->freeFrame(frame1);
+		vsapi->freeFrame(frame2);
 
-        return dst;
-    }
+		return dst;
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 static void VS_CC clenseFree(void *instanceData, VSCore *core, const VSAPI *vsapi) {
-    ClenseData *d = static_cast<ClenseData *>(instanceData);
-    vsapi->freeNode(d->cnode);
-    vsapi->freeNode(d->pnode);
-    vsapi->freeNode(d->nnode);
-    delete d;
+	ClenseData *d = static_cast<ClenseData *>(instanceData);
+	vsapi->freeNode(d->cnode);
+	vsapi->freeNode(d->pnode);
+	vsapi->freeNode(d->nnode);
+	delete d;
 }
 
 void VS_CC clenseCreate(const VSMap *in, VSMap *out, void *userData, VSCore *core, const VSAPI *vsapi) {
-    ClenseData d = {};
-    ClenseData *data;
-    int err;
-    int n, m, o;
-    int i;
+	ClenseData d = {};
+	ClenseData *data;
+	int err;
+	int n, m, o;
+	int i;
 
-    d.mode = int64ToIntS(reinterpret_cast<intptr_t>(userData));
-    d.cnode = vsapi->propGetNode(in, "clip", 0, nullptr);
-    d.vi = vsapi->getVideoInfo(d.cnode);
-    if (!isConstantFormat(d.vi))
-        CLENSE_RETERROR("Clense: only constant format input supported");
+	d.mode = int64ToIntS(reinterpret_cast<intptr_t>(userData));
+	d.cnode = vsapi->propGetNode(in, "clip", 0, nullptr);
+	d.vi = vsapi->getVideoInfo(d.cnode);
+	if (!isConstantFormat(d.vi))
+		CLENSE_RETERROR("Clense: only constant format input supported");
 
-    if (d.mode == cmNormal) {
-        d.pnode = vsapi->propGetNode(in, "previous", 0, &err);
-        if (err)
-            d.pnode = vsapi->cloneNodeRef(d.cnode);
-        d.nnode = vsapi->propGetNode(in, "next", 0, &err);
-        if (err)
-            d.nnode = vsapi->cloneNodeRef(d.cnode);
-    }
+	if (d.mode == cmNormal) {
+		d.pnode = vsapi->propGetNode(in, "previous", 0, &err);
+		if (err)
+			d.pnode = vsapi->cloneNodeRef(d.cnode);
+		d.nnode = vsapi->propGetNode(in, "next", 0, &err);
+		if (err)
+			d.nnode = vsapi->cloneNodeRef(d.cnode);
+	}
 
-    if (d.pnode && !isSameFormat(d.vi, vsapi->getVideoInfo(d.pnode)))
-        CLENSE_RETERROR("Clense: previous clip doesn't have the same format as the main clip");
+	if (d.pnode && !isSameFormat(d.vi, vsapi->getVideoInfo(d.pnode)))
+		CLENSE_RETERROR("Clense: previous clip doesn't have the same format as the main clip");
 
-    if (d.nnode && !isSameFormat(d.vi, vsapi->getVideoInfo(d.nnode)))
-        CLENSE_RETERROR("Clense: previous clip doesn't have the same format as the main clip");
+	if (d.nnode && !isSameFormat(d.vi, vsapi->getVideoInfo(d.nnode)))
+		CLENSE_RETERROR("Clense: previous clip doesn't have the same format as the main clip");
 
-    n = d.vi->format->numPlanes;
-    m = vsapi->propNumElements(in, "planes");
+	n = d.vi->format->numPlanes;
+	m = vsapi->propNumElements(in, "planes");
 
-    for (i = 0; i < 3; i++)
-        d.process[i] = m <= 0;
+	for (i = 0; i < 3; i++)
+		d.process[i] = m <= 0;
 
-    for (i = 0; i < m; i++) {
-        o = int64ToIntS(vsapi->propGetInt(in, "planes", i, nullptr));
+	for (i = 0; i < m; i++) {
+		o = int64ToIntS(vsapi->propGetInt(in, "planes", i, nullptr));
 
-        if (o < 0 || o >= n) 
-            CLENSE_RETERROR("Clense: plane index out of range");
+		if (o < 0 || o >= n)
+			CLENSE_RETERROR("Clense: plane index out of range");
 
-        if (d.process[o])
-            CLENSE_RETERROR("Clense: plane specified twice");
+		if (d.process[o])
+			CLENSE_RETERROR("Clense: plane specified twice");
 
-        d.process[o] = 1;
-    }
+		d.process[o] = 1;
+	}
 
-    VSFilterGetFrame getFrameFunc = nullptr;
-      if (d.mode == cmNormal) {
-          getFrameFunc = clenseGetFrame<float, PlaneProc>;
-          }
-      else {
-          getFrameFunc = clenseGetFrame<float, PlaneProcFB>;
-          }
-        
-    data = new ClenseData(d);
+	VSFilterGetFrame getFrameFunc = nullptr;
+	if (d.mode == cmNormal) {
+		getFrameFunc = clenseGetFrame<float, PlaneProc>;
+	}
+	else {
+		getFrameFunc = clenseGetFrame<float, PlaneProcFB>;
+	}
 
-    vsapi->createFilter(in, out, "Clense", clenseInit, getFrameFunc, clenseFree, fmParallel, 0, data, core);
+	data = new ClenseData(d);
+
+	vsapi->createFilter(in, out, "Clense", clenseInit, getFrameFunc, clenseFree, fmParallel, 0, data, core);
 }
