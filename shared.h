@@ -65,4 +65,3 @@ void VS_CC verticalCleanerCreate(const VSMap *in, VSMap *out, void *userData, VS
 void VS_CC clenseCreate(const VSMap *in, VSMap *out, void *userData, VSCore *core, const VSAPI *vsapi);
 
 #endif
-
